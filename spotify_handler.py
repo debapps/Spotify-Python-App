@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 import os
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
-# import json
+import json
 
 # Load Environment file.
 load_dotenv()
@@ -13,7 +13,7 @@ load_dotenv()
 CLIENT_ID = os.getenv('SPOTIFY_CLIENT_ID')
 CLIENT_SECRET = os.getenv('SPOTIFY_CLIENT_SECRET')
 REDIRECT_URL = os.getenv('SPOTIFY_CALLBACK_URL')
-SCOPES = 'playlist-modify-private user-top-read'
+SCOPES = 'playlist-modify-private user-top-read playlist-read-private'
 
 class SpotifyHandle:
     def __init__(self) -> None:
@@ -42,6 +42,8 @@ class SpotifyHandle:
         return top_track_list
     
     def create_new_playlist(self, name, desc, track_list):
+        '''This method create a new playlist in Spotify and add the tracks.'''
+
         # Create the playlist.
         playlist_data = self.spotify.user_playlist_create(user=self.user_id, 
                                                  name=name, 
@@ -61,7 +63,32 @@ class SpotifyHandle:
         print(f'\n\t{len(track_uri)} songs are added successfully.')
 
     def get_playlists(self):
-        pass
+        '''This method get the current user playlist info.'''
+
+        playlist_data = self.spotify.current_user_playlists()
+
+        # with open('playlist.json', 'w+') as file:
+        #     file.write(json.dumps(playlists))
+
+        playlists = [{
+            'name': playlist['name'],
+            'desc': playlist['description'],
+            'id': playlist['id'],
+            'uri': playlist['uri']
+            } for playlist in playlist_data['items']]
+        
+        return playlists
+    
+    def delete_playlist(self, playlist_id):
+        '''This method deletes the playlist related to playlist id.'''
+
+        self.spotify.current_user_unfollow_playlist(playlist_id)
+
+
+
+# sp = SpotifyHandle()
+# sp.delete_playlist('2Tieee88wuHkun0APWQo9A')
+# print(sp.get_playlists())
 
 
         
